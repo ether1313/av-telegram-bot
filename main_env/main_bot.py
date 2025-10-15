@@ -2,7 +2,7 @@ from telegram import Update, InlineKeyboardButton, InlineKeyboardMarkup
 from telegram.ext import ApplicationBuilder, CommandHandler, ContextTypes
 
 async def start(update: Update, context: ContextTypes.DEFAULT_TYPE):
-    photo_path = "images/girl-03.jpeg"
+    photo_path = "main_env/images/girl-03.jpeg"
 
     caption = (
         "Hey there! 😘\n"
