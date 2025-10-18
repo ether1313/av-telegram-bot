@@ -5,10 +5,10 @@ from bs4 import BeautifulSoup
 from datetime import datetime
 import os
 
-# === Telegram 設定（可以從環境變數讀取，也可以直接寫死） ===
+# === Telegram 設定 ===
 BOT_TOKEN = os.getenv("VIDEO_BOT_TOKEN", "7961665345:AAFtGJsNNqNRRntKXQCFxuCLwqGzln6hbhM")
 CHANNEL_ID = os.getenv("CHANNEL_ID", "@hottxvideos18plus")
-INTERVAL_HOURS = int(os.getenv("INTERVAL_HOURS", 6))
+INTERVAL_HOURS = int(os.getenv("INTERVAL_HOURS", 6))  # 每 6 小時發送一次
 
 # === 影片來源連結 ===
 CATEGORY_URLS = [
@@ -80,17 +80,17 @@ def fetch_videos():
     return all_videos[:VIDEOS_PER_ROUND]
 
 
-# === Telegram 同步發送函式 ===
-def send_photo(chat_id, photo_url, caption):
+# === Telegram 發送函式 ===
+def send_photo(chat_id, photo_url, caption, parse_mode="HTML"):
     url = f"https://api.telegram.org/bot{BOT_TOKEN}/sendPhoto"
-    data = {"chat_id": chat_id, "photo": photo_url, "caption": caption}
+    data = {"chat_id": chat_id, "photo": photo_url, "caption": caption, "parse_mode": parse_mode}
     response = requests.post(url, data=data)
     if response.status_code != 200:
         print(f"⚠️ sendPhoto failed: {response.text}")
 
-def send_message(chat_id, text):
+def send_message(chat_id, text, parse_mode="HTML"):
     url = f"https://api.telegram.org/bot{BOT_TOKEN}/sendMessage"
-    data = {"chat_id": chat_id, "text": text}
+    data = {"chat_id": chat_id, "text": text, "parse_mode": parse_mode}
     response = requests.post(url, data=data)
     if response.status_code != 200:
         print(f"⚠️ sendMessage failed: {response.text}")
@@ -109,8 +109,8 @@ def send_to_channel():
 
         for v in videos:
             caption = (
-                f"🥵 Watch Now: {v['url']}\n"
-                f"🍌 More videos: https://tinyurl.com/3zh5zvrf"
+                f"🥵 <a href=\"{v['url']}\">I’m already inside… waiting just for you</a>\n"
+                f"🍌 <a href=\"https://tinyurl.com/3zh5zvrf\">More videos here</a>"
             )
 
             if v["thumbnail"]:
