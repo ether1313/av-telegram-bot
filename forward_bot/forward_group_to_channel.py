@@ -1,39 +1,44 @@
 import os
-from telegram import Update
-from telegram.ext import ApplicationBuilder, MessageHandler, filters, ContextTypes
+import asyncio
+from datetime import datetime
+from telegram import Bot
 from dotenv import load_dotenv
 
 # === 載入環境變數 ===
 load_dotenv()
 
-# === Telegram 基本設定 ===
 BOT_TOKEN = os.getenv("FORWARD_BOT_TOKEN", "7640340584:AAFRegFmJmrx-44r93wnQJFNPmtVQ_M0pKc")
+SOURCE_GROUP_ID = int(os.getenv("FORWARD_GROUP_ID", "-1003199070793"))  # 群組 ID
+TARGET_CHANNEL = os.getenv("FORWARD_TARGET_CHANNEL", "@hottxvideos18plus")  # 頻道 ID
+INTERVAL_HOURS = int(os.getenv("INTERVAL_HOURS", 4))  # 每幾小時轉發一次
 
-# ⚠️ 使用正確的群組 ID（來自 GetIDsBot）
-SOURCE_GROUP_ID = int(os.getenv("FORWARD_GROUP_ID", "-1003199070793"))
+# ✅ 固定要轉發的訊息 ID
+MESSAGE_IDS = [41, 42, 43, 44, 46]
 
-# ✅ 目標頻道（公開頻道可以直接用 @名稱）
-TARGET_CHANNEL = os.getenv("FORWARD_TARGET_CHANNEL", "@hottxvideos18plus")
+bot = Bot(token=BOT_TOKEN)
 
-
-# === 主轉發邏輯 ===
-async def forward_all(update: Update, context: ContextTypes.DEFAULT_TYPE):
-    msg = update.message
-
-    # 僅轉發來自指定群組的訊息
-    if msg and msg.chat.id == SOURCE_GROUP_ID:
+async def forward_fixed_messages():
+    while True:
         try:
-            # 使用 Telegram 內建的 forward（能保持原作者 & 原格式）
-            await msg.forward(chat_id=TARGET_CHANNEL)
-            print(f"✅ 成功轉發訊息 ID: {msg.message_id}")
+            print(f"\n🕓 檢查時間：{datetime.now().strftime('%Y-%m-%d %H:%M:%S')}")
+            for msg_id in MESSAGE_IDS:
+                try:
+                    await bot.copy_message(
+                        chat_id=TARGET_CHANNEL,
+                        from_chat_id=SOURCE_GROUP_ID,
+                        message_id=msg_id
+                    )
+                    print(f"✅ 成功重新轉發訊息 ID: {msg_id}")
+                except Exception as e:
+                    print(f"⚠️ 無法轉發訊息 ID {msg_id}: {e}")
+
+            print(f"⏳ 等待下一輪（{INTERVAL_HOURS} 小時後）...\n")
+            await asyncio.sleep(INTERVAL_HOURS * 3600)
 
         except Exception as e:
-            print(f"⚠️ 轉發失敗: {e}")
+            print(f"💥 錯誤：{e}")
+            await asyncio.sleep(60)
 
-
-# === 啟動 Bot ===
 if __name__ == "__main__":
-    print("🤖 Forward Bot 已啟動，正在監聽群組訊息...")
-    app = ApplicationBuilder().token(BOT_TOKEN).build()
-    app.add_handler(MessageHandler(filters.ALL, forward_all))
-    app.run_polling()
+    print(f"🤖 Scheduled Forward Bot 啟動中，每 {INTERVAL_HOURS} 小時自動轉發一次固定訊息...")
+    asyncio.run(forward_fixed_messages())
