@@ -137,7 +137,7 @@ if __name__ == "__main__":
         print("🎯 All videos sent, now starting message forward script...")
 
         # 使用 subprocess 启动第二个脚本
-        subprocess.run(["python3", "forward_fixed_messages.py"])
+        subprocess.run(["python3", "forward_group_to_channel.py"])
 
         print(f"🕒 Waiting {INTERVAL_HOURS} hours before next video batch...\n")
         time.sleep(INTERVAL_HOURS * 3600)
