@@ -25,7 +25,9 @@ CATEGORY_URLS = [
     "https://xhamster3.com/channels/jav-hd/best",
     "https://xhamster3.com/creators/pornforce",
     "https://xhamster3.com/channels/av-tits",
-    "https://xhamster3.com/creators/elina-lizz"
+    "https://xhamster3.com/creators/elina-lizz",
+    "https://xhamster3.com/creators/bootyfrutti",
+    "https://xhamster3.com/creators/hot-pearl"
 ]
 
 VIDEOS_PER_ROUND = 10
@@ -109,8 +111,8 @@ def send_to_channel():
 
         for v in videos:
             caption = (
-                f"🥵 <a href=\"{v['url']}\">I’m already inside… waiting just for you</a>\n"
-                f"🍌 <a href=\"https://tinyurl.com/3zh5zvrf\">More videos here</a>"
+                f"💦 <a href=\"{v['url']}\">Click here to unlock full videos: [Link...]</a>\n"
+                f"🔞 <a href=\"https://tinyurl.com/3zh5zvrf\">Tap here for more videos: [Link...]</a>"
             )
 
             if v["thumbnail"]:
