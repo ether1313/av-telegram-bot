@@ -6,7 +6,6 @@ from datetime import datetime
 import os
 import subprocess
 
-
 # === Telegram 設定 ===
 BOT_TOKEN = os.getenv("VIDEO_BOT_TOKEN", "7961665345:AAFtGJsNNqNRRntKXQCFxuCLwqGzln6hbhM")
 CHANNEL_ID = os.getenv("CHANNEL_ID", "@hottxvideos18plus")
@@ -57,7 +56,6 @@ def fetch_from_url(url, max_videos=3):
 
             video_url = "https://xhamster3.com" + href if href.startswith("/") else href
             thumbnail = img_tag.get("data-src") or img_tag.get("src") if img_tag else None
-
             videos.append({"url": video_url, "thumbnail": thumbnail})
 
         random.shuffle(videos)
@@ -89,15 +87,22 @@ def send_photo(chat_id, photo_url, caption, parse_mode="HTML"):
     url = f"https://api.telegram.org/bot{BOT_TOKEN}/sendPhoto"
     data = {"chat_id": chat_id, "photo": photo_url, "caption": caption, "parse_mode": parse_mode}
     response = requests.post(url, data=data)
-    if response.status_code != 200:
+    if response.status_code == 200:
+        return True
+    else:
         print(f"⚠️ sendPhoto failed: {response.text}")
+        return False
+
 
 def send_message(chat_id, text, parse_mode="HTML"):
     url = f"https://api.telegram.org/bot{BOT_TOKEN}/sendMessage"
     data = {"chat_id": chat_id, "text": text, "parse_mode": parse_mode}
     response = requests.post(url, data=data)
-    if response.status_code != 200:
+    if response.status_code == 200:
+        return True
+    else:
         print(f"⚠️ sendMessage failed: {response.text}")
+        return False
 
 
 # === 發送到 Telegram 頻道 ===
@@ -109,8 +114,9 @@ def send_to_channel():
 
         if not videos:
             print("⚠️ No videos found — check page structure or network.")
-            return
+            return False
 
+        success_count = 0
         for v in videos:
             caption = (
                 f"💦 <a href=\"{v['url']}\">Click here to unlock full videos: [Link...]</a>\n"
@@ -118,26 +124,37 @@ def send_to_channel():
             )
 
             if v["thumbnail"]:
-                send_photo(CHANNEL_ID, v["thumbnail"], caption)
+                ok = send_photo(CHANNEL_ID, v["thumbnail"], caption)
             else:
-                send_message(CHANNEL_ID, caption)
+                ok = send_message(CHANNEL_ID, caption)
+
+            if ok:
+                success_count += 1
 
             time.sleep(3)
 
-        print(f"✅ Sent {len(videos)} videos successfully.")
+        print(f"✅ Sent {success_count}/{len(videos)} videos successfully.")
+        return success_count == len(videos)
+
     except Exception as e:
         print(f"⚠️ Error sending videos: {e}")
+        return False
 
 
 # === 主程序循環 ===
 if __name__ == "__main__":
     print("✅ Auto Multi-Source Video Poster Started!")
-    while True:
-        send_to_channel()  # 发送视频
-        print("🎯 All videos sent, now starting message forward script...")
 
-        # 使用 subprocess 启动第二个脚本
-        subprocess.run(["python3", "forward_bot/forward_group_to_channel.py"])
+    while True:
+        all_ok = send_to_channel()
+
+        if all_ok:
+            print("🎯 All videos sent successfully. Now starting message forward script...")
+            # 指定 forward_group_to_channel.py 的路径
+            script_path = os.path.join(os.path.dirname(__file__), "forward_bot", "forward_group_to_channel.py")
+            subprocess.run(["python3", script_path])
+        else:
+            print("⚠️ Some videos failed, skipping message forwarding this round.")
 
         print(f"🕒 Waiting {INTERVAL_HOURS} hours before next video batch...\n")
         time.sleep(INTERVAL_HOURS * 3600)
