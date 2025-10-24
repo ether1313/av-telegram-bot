@@ -62,7 +62,7 @@ async def forward_fixed_messages():
             await asyncio.sleep(INTERVAL_HOURS * 3600)
 
         except Exception as e:
-            print(f"💥 Error occurred: {e}")
+            print(f"Error occurred: {e}")
             await asyncio.sleep(60)
 
 if __name__ == "__main__":
