@@ -48,11 +48,12 @@ async def forward_messages(message_ids, round_label):
 
 
 def get_next_run_time():
-    """Return next run time in AU timezone: 04:00, 08:00, 14:00, 20:00"""
+    """Return next run time in AU timezone: 02:00, 08:00, 14:00, 20:00"""
     now = datetime.now(AU_TZ)
     today = now.strftime("%Y-%m-%d")
 
-    schedule_times = ["04:00", "08:00", "14:00", "20:00"]
+    # 👇 修改這裡，原本04:00改成02:00
+    schedule_times = ["02:00", "08:00", "14:00", "20:00"]
     times_today = [
         AU_TZ.localize(datetime.strptime(f"{today} {t}", "%Y-%m-%d %H:%M"))
         for t in schedule_times
@@ -62,13 +63,13 @@ def get_next_run_time():
         if now < t:
             return t
 
-    # If all today's times passed, schedule first run for tomorrow 04:00
+    # If all today's times passed, schedule first run for tomorrow 02:00
     tomorrow = (now + timedelta(days=1)).strftime("%Y-%m-%d")
-    return AU_TZ.localize(datetime.strptime(f"{tomorrow} 04:00", "%Y-%m-%d %H:%M"))
+    return AU_TZ.localize(datetime.strptime(f"{tomorrow} 02:00", "%Y-%m-%d %H:%M"))
 
 
 async def schedule_loop():
-    print("🤖 Bot started (Australia/Sydney timezone, every 4 scheduled times daily).")
+    print("🤖 Bot started (Australia/Sydney timezone, runs at 02:00, 08:00, 14:00, 20:00).")
 
     state_file = "forward_state.txt"
     if os.path.exists(state_file):
