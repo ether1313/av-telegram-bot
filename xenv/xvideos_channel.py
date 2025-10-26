@@ -24,7 +24,6 @@ CATEGORY_URLS = [
     "https://xhamster3.com/categories/russian",
     "https://xhamster3.com/categories/japanese",
     "https://xhamster3.com/channels/av-stockings",
-    "https://xhamster3.com/channels/modelmediaasia",
     "https://xhamster3.com/channels/jav-hd",
     "https://xhamster3.com/channels/jav-hd/best",
     "https://xhamster3.com/creators/pornforce",
