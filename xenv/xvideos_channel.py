@@ -21,7 +21,6 @@ CATEGORY_URLS = [
     "https://xhamster3.com/categories/russian",
     "https://xhamster3.com/categories/japanese",
     "https://xhamster3.com/channels/av-stockings",
-    "https://xhamster3.com/channels/modelmediaasia",
     "https://xhamster3.com/channels/jav-hd",
     "https://xhamster3.com/channels/jav-hd/best",
     "https://xhamster3.com/creators/pornforce",
@@ -47,8 +46,15 @@ def fetch_from_url(url, max_videos=3):
         res = requests.get(url, headers=headers, timeout=15)
         soup = BeautifulSoup(res.text, "html.parser")
 
+        # 打印頁面標題以檢查是否被 Cloudflare 攔截
+        title_tag = soup.find("title")
+        print(f"📄 Page title from {url}: {title_tag.text.strip() if title_tag else 'No title found'}")
+
         videos = []
-        for a in soup.select("a.thumb-image-container, a.video-thumb__image-container"):
+        # ✅ 加入多種 CSS Selector 匹配
+        for a in soup.select(
+            "a.thumb-image-container, a.video-thumb__image-container, a.video-thumb, div.thumb a, div.video-thumb__link"
+        ):
             href = a.get("href")
             img_tag = a.find("img")
             if not href:
@@ -58,8 +64,10 @@ def fetch_from_url(url, max_videos=3):
             thumbnail = img_tag.get("data-src") or img_tag.get("src") if img_tag else None
             videos.append({"url": video_url, "thumbnail": thumbnail})
 
+        print(f"🎞 Found {len(videos)} videos from {url}")
         random.shuffle(videos)
         return videos[:max_videos]
+
     except Exception as e:
         print(f"⚠️ Error fetching from {url}: {e}")
         return []
@@ -79,6 +87,7 @@ def fetch_videos():
         time.sleep(1)
 
     random.shuffle(all_videos)
+    print(f"📦 Total gathered before filtering: {len(all_videos)} videos")
     return all_videos[:VIDEOS_PER_ROUND]
 
 
@@ -130,7 +139,6 @@ def send_to_channel():
 
             if ok:
                 success_count += 1
-
             time.sleep(3)
 
         print(f"✅ Sent {success_count}/{len(videos)} videos successfully.")
@@ -151,7 +159,6 @@ if __name__ == "__main__":
         if all_ok:
             print("🎯 All videos sent successfully. Now starting message forward script...")
 
-            # ✅ 修正路径（跳出 xenv 再进入 forward_bot）
             script_path = os.path.join(os.path.dirname(__file__), "..", "forward_bot", "forward_group_to_channel.py")
             script_path = os.path.abspath(script_path)
 
@@ -160,6 +167,9 @@ if __name__ == "__main__":
         else:
             print("⚠️ Some videos failed, skipping message forwarding this round！")
 
+        # ✅ 加入循环检测输出
+        next_run = datetime.now() + timedelta(hours=INTERVAL_HOURS)
+        print(f"🔁 Loop check — Next run scheduled at {next_run.strftime('%Y-%m-%d %H:%M:%S')} "
+              f"(every {INTERVAL_HOURS} hours)\n")
 
-        print(f"🕒 Waiting {INTERVAL_HOURS} hours before next video batch...\n")
         time.sleep(INTERVAL_HOURS * 3600)
