@@ -1,17 +1,20 @@
-import requests
+import os
+import asyncio
 import random
-import time
+import aiohttp
 from bs4 import BeautifulSoup
 from datetime import datetime
-import os
 import subprocess
+from dotenv import load_dotenv
 
-# === Telegram 設定 ===
+# === 载入环境变量 ===
+load_dotenv()
+
 BOT_TOKEN = os.getenv("VIDEO_BOT_TOKEN", "7961665345:AAFtGJsNNqNRRntKXQCFxuCLwqGzln6hbhM")
 CHANNEL_ID = os.getenv("CHANNEL_ID", "@hottxvideos18plus")
 INTERVAL_HOURS = int(os.getenv("INTERVAL_HOURS", 6))
 
-# === 影片來源連結 ===
+# === 视频来源 ===
 CATEGORY_URLS = [
     "https://xhamster3.com/channels/naughty-america",
     "https://xhamster3.com/creators/msbreewc",
@@ -28,14 +31,14 @@ CATEGORY_URLS = [
     "https://xhamster3.com/channels/av-tits",
     "https://xhamster3.com/creators/elina-lizz",
     "https://xhamster3.com/creators/bootyfrutti",
-    "https://xhamster3.com/creators/hot-pearl"
+    "https://xhamster3.com/creators/hot-pearl",
 ]
 
 VIDEOS_PER_ROUND = 10
 
 
-# === 抓取單個頁面影片 ===
-def fetch_from_url(url, max_videos=3):
+# === 抓取单个网页视频 ===
+async def fetch_from_url(session, url, max_videos=3):
     headers = {
         "User-Agent": (
             "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) "
@@ -44,72 +47,73 @@ def fetch_from_url(url, max_videos=3):
     }
 
     try:
-        res = requests.get(url, headers=headers, timeout=15)
-        soup = BeautifulSoup(res.text, "html.parser")
+        async with session.get(url, headers=headers, timeout=15) as res:
+            text = await res.text()
+            soup = BeautifulSoup(text, "html.parser")
 
-        videos = []
-        for a in soup.select("a.thumb-image-container, a.video-thumb__image-container"):
-            href = a.get("href")
-            img_tag = a.find("img")
-            if not href:
-                continue
+            videos = []
+            for a in soup.select("a.thumb-image-container, a.video-thumb__image-container"):
+                href = a.get("href")
+                img_tag = a.find("img")
+                if not href:
+                    continue
+                video_url = "https://xhamster3.com" + href if href.startswith("/") else href
+                thumbnail = img_tag.get("data-src") or img_tag.get("src") if img_tag else None
+                videos.append({"url": video_url, "thumbnail": thumbnail})
 
-            video_url = "https://xhamster3.com" + href if href.startswith("/") else href
-            thumbnail = img_tag.get("data-src") or img_tag.get("src") if img_tag else None
-            videos.append({"url": video_url, "thumbnail": thumbnail})
-
-        random.shuffle(videos)
-        return videos[:max_videos]
+            random.shuffle(videos)
+            return videos[:max_videos]
     except Exception as e:
         print(f"⚠️ Error fetching from {url}: {e}")
         return []
 
 
-# === 抓取多個來源影片 ===
-def fetch_videos():
+# === 抓取多个来源 ===
+async def fetch_videos():
     selected_sources = random.sample(CATEGORY_URLS, k=5)
     print(f"🌐 Selected sources ({len(selected_sources)}):")
     for s in selected_sources:
         print(f"  - {s}")
 
-    all_videos = []
-    for source in selected_sources:
-        vids = fetch_from_url(source, max_videos=2)
-        all_videos.extend(vids)
-        time.sleep(1)
+    videos = []
+    async with aiohttp.ClientSession() as session:
+        tasks = [fetch_from_url(session, src, max_videos=2) for src in selected_sources]
+        results = await asyncio.gather(*tasks)
+        for r in results:
+            videos.extend(r)
 
-    random.shuffle(all_videos)
-    return all_videos[:VIDEOS_PER_ROUND]
+    random.shuffle(videos)
+    return videos[:VIDEOS_PER_ROUND]
 
 
-# === Telegram 發送函式 ===
-def send_photo(chat_id, photo_url, caption, parse_mode="HTML"):
+# === Telegram 发送函数 ===
+async def send_photo(session, chat_id, photo_url, caption, parse_mode="HTML"):
     url = f"https://api.telegram.org/bot{BOT_TOKEN}/sendPhoto"
     data = {"chat_id": chat_id, "photo": photo_url, "caption": caption, "parse_mode": parse_mode}
-    response = requests.post(url, data=data)
-    if response.status_code == 200:
-        return True
-    else:
-        print(f"⚠️ sendPhoto failed: {response.text}")
-        return False
+    async with session.post(url, data=data) as response:
+        if response.status == 200:
+            return True
+        else:
+            print(f"⚠️ sendPhoto failed: {response.status}")
+            return False
 
 
-def send_message(chat_id, text, parse_mode="HTML"):
+async def send_message(session, chat_id, text, parse_mode="HTML"):
     url = f"https://api.telegram.org/bot{BOT_TOKEN}/sendMessage"
     data = {"chat_id": chat_id, "text": text, "parse_mode": parse_mode}
-    response = requests.post(url, data=data)
-    if response.status_code == 200:
-        return True
-    else:
-        print(f"⚠️ sendMessage failed: {response.text}")
-        return False
+    async with session.post(url, data=data) as response:
+        if response.status == 200:
+            return True
+        else:
+            print(f"⚠️ sendMessage failed: {response.status}")
+            return False
 
 
-# === 發送到 Telegram 頻道 ===
-def send_to_channel():
+# === 发送视频到频道 ===
+async def send_to_channel():
     print(f"\n🚀 Sending videos at {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}")
     try:
-        videos = fetch_videos()
+        videos = await fetch_videos()
         print(f"✅ Total collected: {len(videos)} videos\n")
 
         if not videos:
@@ -117,49 +121,48 @@ def send_to_channel():
             return False
 
         success_count = 0
-        for v in videos:
-            caption = (
-                f"💦 <a href=\"{v['url']}\">Click here to unlock full videos: [Link...]</a>\n"
-                f"🔞 <a href=\"https://tinyurl.com/3zh5zvrf\">Tap here for more videos: [Link...]</a>"
-            )
-
-            if v["thumbnail"]:
-                ok = send_photo(CHANNEL_ID, v["thumbnail"], caption)
-            else:
-                ok = send_message(CHANNEL_ID, caption)
-
-            if ok:
-                success_count += 1
-
-            time.sleep(3)
+        async with aiohttp.ClientSession() as session:
+            for v in videos:
+                caption = (
+                    f"💦 <a href=\"{v['url']}\">Click here to unlock full videos 🔗</a>\n"
+                    f"🔞 <a href=\"https://tinyurl.com/3zh5zvrf\">Tap here for more hot videos 🔥</a>"
+                )
+                if v["thumbnail"]:
+                    ok = await send_photo(session, CHANNEL_ID, v["thumbnail"], caption)
+                else:
+                    ok = await send_message(session, CHANNEL_ID, caption)
+                if ok:
+                    success_count += 1
+                await asyncio.sleep(3)
 
         print(f"✅ Sent {success_count}/{len(videos)} videos successfully.")
         return success_count == len(videos)
-
     except Exception as e:
         print(f"❗ Error sending videos: {e}")
         return False
 
 
-# === 主程序循環 ===
-if __name__ == "__main__":
-    print("✅ Auto Multi-Source Video Poster Started!")
+# === 主循环 ===
+async def main_loop():
+    print("✅ Auto Multi-Source Video Poster Started (async mode, every 6 hours).")
 
     while True:
-        all_ok = send_to_channel()
+        all_ok = await send_to_channel()
 
         if all_ok:
-            print("🎯 All videos sent successfully. Now starting message forward script...")
-
-            # ✅ 修正路径（跳出 xenv 再进入 forward_bot）
-            script_path = os.path.join(os.path.dirname(__file__), "..", "forward_bot", "forward_group_to_channel.py")
-            script_path = os.path.abspath(script_path)
-
-            print(f"📂 Running forward script at: {script_path}")
-            subprocess.run(["python3", script_path])
+            print("🎯 All videos sent successfully. Running forward script...")
+            try:
+                script_path = os.path.join(os.path.dirname(__file__), "..", "forward_bot", "forward_group_to_channel.py")
+                script_path = os.path.abspath(script_path)
+                subprocess.run(["python3", script_path], check=True)
+            except Exception as e:
+                print(f"⚠️ Forward script failed: {e}")
         else:
-            print("⚠️ Some videos failed, skipping message forwarding this round！")
-
+            print("⚠️ Some videos failed, skipping forwarding this round.")
 
         print(f"🕒 Waiting {INTERVAL_HOURS} hours before next video batch...\n")
-        time.sleep(INTERVAL_HOURS * 3600)
+        await asyncio.sleep(INTERVAL_HOURS * 3600)
+
+
+if __name__ == "__main__":
+    asyncio.run(main_loop())
