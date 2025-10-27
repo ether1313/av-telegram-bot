@@ -168,20 +168,26 @@ if __name__ == "__main__":
     print("✅ Auto Multi-Source Video Poster Started!")
 
     while True:
-        all_ok = send_to_channel()
+        try:
+            all_ok = send_to_channel()
 
-        if all_ok:
-            print("🎯 All videos sent successfully. Now starting message forward script...")
+            if all_ok:
+                print("🎯 All videos sent successfully. Now starting message forward script...")
 
-            # ✅ 修正路径（跳出 xenv 再进入 forward_bot）
-            script_path = os.path.join(os.path.dirname(__file__), "..", "forward_bot", "forward_group_to_channel.py")
-            script_path = os.path.abspath(script_path)
+                script_path = os.path.join(os.path.dirname(__file__), "..", "forward_bot", "forward_group_to_channel.py")
+                script_path = os.path.abspath(script_path)
 
-            print(f"📂 Running forward script at: {script_path}")
-            subprocess.run(["python3", script_path])
-        else:
-            print("⚠️ Some videos failed, skipping message forwarding this round！")
+                print(f"📂 Running forward script at: {script_path}")
+                subprocess.Popen(["python3", script_path])  # ✅ 非阻塞
+            else:
+                print("⚠️ Some videos failed, skipping message forwarding this round！")
 
+        except Exception as e:
+            # 捕捉任何未預期錯誤，防止整個程式崩潰
+            print(f"❗ Unexpected error occurred: {e}")
+            print("🔁 Restarting main loop in 1 minute...")
+            time.sleep(60)  # 給它一點時間恢復
 
         print(f"🕒 Waiting {INTERVAL_HOURS} hours before next video batch...\n")
         time.sleep(INTERVAL_HOURS * 3600)
+
