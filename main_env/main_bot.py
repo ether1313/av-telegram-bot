@@ -9,18 +9,19 @@ async def start(update: Update, context: ContextTypes.DEFAULT_TYPE):
     caption = (
         f"👋 Welcome {user_name}, \n\n"
         "Before we start, if you're not a robot \n" 
-        "Kindly tap the both buttons [I'M NOT A ROBOT] \n" 
+        "Kindly tap the both buttons \n" 
+        "【I'M NOT A ROBOT 🟢T】 \n" 
         "to get unlimited bonus rewards 🎁 \n\n"
         "Earn Affiliate Commission Cash \n"
         "Share More, Earn More 💰 \n\n"
         "Win More With This Sexy Vibes \n"
-        "Tap [CHAT WITH HER] ▶︎ •၊၊||၊|။|| 0:10"
+        "Try tap [CHAT WITH HER] ▶︎ •၊၊||၊|။|| 0:10"
     )
 
     keyboard = [
         [InlineKeyboardButton("I'M NOT A ROBOT 🟢", url="https://t.me/addlist/vU9C9Dvo_TJkZThl")],
         [InlineKeyboardButton("I'M NOT A ROBOT 🟢", url="https://www.13auteam.com/")],
-        [InlineKeyboardButton("CHAT WITH HER 💗⃝🌕", url="https://t.me/hottxvideos18plus")]
+        [InlineKeyboardButton("CHAT WITH HER ﾒ૦ﾒ૦💋", url="https://t.me/hottxvideos18plus")]
     ]
     reply_markup = InlineKeyboardMarkup(keyboard)
 
