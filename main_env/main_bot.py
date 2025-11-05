@@ -14,7 +14,7 @@ async def start(update: Update, context: ContextTypes.DEFAULT_TYPE):
         "Earn Affiliate Commission Cash \n"
         "Share More & Earn More 💰 \n\n"
         "Win More With This Sexy Vibes, \n"
-        "Try Tap 「CHAT WITH HER」▶︎ •၊၊||၊|။|| 0:10"
+        "Try Tap「CHAT WITH HER」▶︎ •၊၊||၊|။|| 0:10"
     )
 
     keyboard = [
