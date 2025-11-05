@@ -8,9 +8,9 @@ async def start(update: Update, context: ContextTypes.DEFAULT_TYPE):
 
     caption = (
         f"Welcome {user_name}, hey there! 👋\n\n"
-        "Welcome, hey there! \n\n"
         "Before we start, if you're not a robot \n" 
-        "tap the both buttons [I'M NOT A ROBOT] to get bonus rewards 🎁 \n\n"
+        "tap the both buttons [I'M NOT A ROBOT] \n" 
+        "to get bonus rewards 🎁 \n\n"
         "Earn Affiliate Commission Cash \n"
         "Share More, Earn More 💰 \n\n"
         "Earn Cash Win More With This Sexy Vibes 💦 \n"
