@@ -7,7 +7,7 @@ async def start(update: Update, context: ContextTypes.DEFAULT_TYPE):
 
 
     caption = (
-        f"👋 Welcome {user_name}, \n\n"
+        f"🤝𝐖𝐄𝐋𝐂𝐎𝐌𝐄 {user_name}, \n\n"
         "Before We Start, If You're Not A Robot, \n" 
         "Kindly Tap「I'M NOT A ROBOT」 \n" 
         "To Get Unlimited Bonus Rewards 🎁 \n\n"
