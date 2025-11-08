@@ -19,7 +19,7 @@ async def start(update: Update, context: ContextTypes.DEFAULT_TYPE):
 
     keyboard = [
         [InlineKeyboardButton("I'M NOT A ROBOT 🟢", url="https://t.me/addlist/vU9C9Dvo_TJkZThl")],
-        [InlineKeyboardButton("I'M NOT A ROBOT 🟢", url="https://www.13auteam.com/")],
+        [InlineKeyboardButton("I'M NOT A ROBOT 🟢", url="https://heylink.me/tpaaustralia/")],
         [InlineKeyboardButton("CHAT WITH HER ﾒ૦ﾒ૦💋", url="https://t.me/hottxvideos18plus")]
     ]
     reply_markup = InlineKeyboardMarkup(keyboard)
