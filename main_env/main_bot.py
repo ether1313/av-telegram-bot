@@ -28,7 +28,7 @@ async def start(update: Update, context: ContextTypes.DEFAULT_TYPE):
         await update.message.reply_photo(photo=photo, caption=caption, reply_markup=reply_markup)
 
 if __name__ == "__main__":
-    app = ApplicationBuilder().token("7996734575:AAFM3Me9g2dRf_kmTavIXap8TA1ZxfwVMi8").build()
+    app = ApplicationBuilder().token(os.getenv("BOT_TOKEN")).build()
     app.add_handler(CommandHandler("start", start))
     print("✅ Main Bot is running...")
     app.run_polling()
