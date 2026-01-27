@@ -57,11 +57,11 @@ async def start(update: Update, context: ContextTypes.DEFAULT_TYPE):
     caption = (
         f"<b>✨ Welcome ✨ {user_name}!</b>\n\n"
         "<b>⚡️ Quick Verification</b>\n"
-        "<b>Tap「I'M NOT A ROBOT」to unlock rewards</b>\n\n"
+        "Tap I'M NOT A ROBOT 🟢 to unlock rewards\n\n"
         "<b>💰 Earn Extra Money Now</b>\n"
-        "<b>Share & earn affiliate commissions</b>\n\n"
-        "<b>💋 Ready to chat?</b>\n"
-        "<b>Click「CHAT WITH HER」▶︎ •၊၊|။|| 0:10</b>"
+        "Share & earn affiliate commissions\n\n"
+        "<b>💋 Ready To Chat With Her?</b>\n"
+        "Find your perfect match in our chat room"
     )
 
     keyboard = [
