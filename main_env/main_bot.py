@@ -59,8 +59,8 @@ async def start(update: Update, context: ContextTypes.DEFAULT_TYPE):
         "<b>⚡️ Quick Verification</b>\n"
         "Tap I'M NOT A ROBOT 🟢 to unlock rewards\n\n"
         "<b>💰 Earn Extra Money Now</b>\n"
-        "Share & earn affiliate commissions\n\n"
-        "<b>💋 Ready To Chat With Her?</b>\n"
+        "Share to your friends & earn affiliate commissions\n\n"
+        "<b>💋 Ready To Chat With Spicy Girls?</b>\n"
         "Find your perfect match in our chat room"
     )
 
