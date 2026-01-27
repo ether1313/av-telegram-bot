@@ -55,14 +55,13 @@ async def start(update: Update, context: ContextTypes.DEFAULT_TYPE):
     user_name = user.first_name or user.username or "there"
 
     caption = (
-        f"✨ 𝓦𝓮𝓵𝓬𝓸𝓂𝓮 ✨ {user_name}, \n\n"
-        "Before We Start, If You're Not A Robot,\n"
-        "Kindly Tap「I'M NOT A ROBOT」\n"
-        "To Get Unlimited Bonus Rewards 🎁\n\n"
-        "Earn Affiliate Commission Cash\n"
-        "Share More & Earn More 💰\n\n"
-        "Win More With This Sexy Vibes,\n"
-        "Try Tap「CHAT WITH HER」▶︎ •၊၊||၊|။|| 0:10"
+        f"<b>✨ Welcome ✨ {user_name}!</b>\n\n"
+        "<b>⚡️ Quick Verification</b>\n"
+        "<b>Tap「I'M NOT A ROBOT」to unlock rewards</b>\n\n"
+        "<b>💰 Earn Extra Money Now</b>\n"
+        "<b>Share & earn affiliate commissions</b>\n\n"
+        "<b>💋 Ready to chat?</b>\n"
+        "<b>Click「CHAT WITH HER」▶︎ •၊၊|။|| 0:10</b>"
     )
 
     keyboard = [
@@ -77,7 +76,7 @@ async def start(update: Update, context: ContextTypes.DEFAULT_TYPE):
 
     if update.message:
         with open(photo_path, "rb") as gif:
-            await update.message.reply_animation(animation=gif, caption=caption, reply_markup=reply_markup)
+            await update.message.reply_animation(animation=gif, caption=caption, reply_markup=reply_markup, parse_mode="HTML")
     else:
         await update.callback_query.message.reply_text("Please use /start in private chat.")
 
